@@ -5,20 +5,22 @@ import constants
 
 openai.api_key = constants.OPENAI_API_KEY
 
-messages = [ {"role": "system", "content": "You are a fashion assistant designed to suggest outfits based on weather and create a dalle prompt that generates images with 4 or more panels depicting those outfits. You should describe each every part of the outfit clearly."} ]
+messages = [ {"role": "system", "content": "You are a fashion assistant designed to suggest outfits based on weather and create a dalle prompt that generates images with 4 or more panels depicting those outfits. You should describe each every part of the outfit clearly but should not exceed 16000 characters."} ]
 
 def handle_response(message) -> str:
     gender = ''
     if(message.startswith('/')):
         print(message)
-        if(message.endswith("men")):
-            message = message[:-4]
-            gender = 'men'
-        elif(message.endswith("women")):
+        if(message.endswith("women")):
             message = message[:-6]
             gender = 'women'
+            
+        elif(message.endswith(" men")):
+            message = message[:-4]
+            gender = 'men'
         
         message = message.lower().replace(" ", "%20").replace("/", "")
+        print(message)
         if(gender):
             link = "https://api.openweathermap.org/data/2.5/weather?q="+message+"&appid="+constants.WEATHER_API_KEY
             api_link = link.replace(" ", "%20")
