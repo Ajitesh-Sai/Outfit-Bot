@@ -5,7 +5,8 @@ import constants
 
 openai.api_key = constants.OPENAI_API_KEY
 
-messages = [ {"role": "system", "content": "You are a fashion assistant designed to suggest outfits based on weather and create a dalle prompt that generates images with 4 or more panels depicting those outfits. You should describe each every part of the outfit clearly but should not exceed 16000 characters."} ]
+#Setting context
+messages = [ {"role": "system", "content": "You are a fashion assistant designed to suggest outfits based on weather and create a dalle prompt that generates images with 4 or more panels depicting those outfits. You should describe each every part of the outfit clearly. The length of the prompt should not exceed 120 words."} ]
 
 def handle_response(message) -> str:
     gender = ''
