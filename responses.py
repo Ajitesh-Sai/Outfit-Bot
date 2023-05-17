@@ -5,7 +5,7 @@ import constants
 
 openai.api_key = constants.OPENAI_API_KEY
 
-gpt_messages = [ {"role": "system", "content": "You are a fashion assistant designed to suggest outfits based on weather. You should describe each every part of the outfit individually. The length of the prompt should not exceed 120 words."} ]
+gpt_messages = [ {"role": "system", "content": "You are a fashion assistant designed to suggest outfits based on weather. You should describe each every part of the outfit individually. The length of the prompt should not exceed 100 words."} ]
 
 def process_string(input_string):
     city = ""
@@ -38,9 +38,9 @@ def extract_gender(input_string):
 
 def handle_response(message) -> str:
     print(message)
-    
+    reply=[]
     if (message=='help'):
-        return "Hi there! \nI am designed to suggest you outfits based on current weather in a city of your choice. \nYou can invoke me in the following way\n /[city_name] ['men'/'women']\nExample query:/London women"  
+        return ["Hi there! \nI am designed to suggest you outfits based on current weather in a city of your choice. \nYou can invoke me in the following way\n /[city_name] ['men'/'women']\nExample query:/London women", 0]  
     elif(message.startswith('/')):
         print(message)
         city, user_gender , user_preference = process_string(message[1:])
@@ -55,11 +55,11 @@ def handle_response(message) -> str:
             if(response['cod']=='404'):
                 print('1')
                 print(response['cod'])
-                return "City not found. \nPlease try that again with a valid city name"            
+                return ["City not found. \nPlease try that again with a valid city name", '0']            
             elif(response['cod']=='429'):
                 print('2')
                 print(response['cod'])
-                return "You have exceeded the API call limit for now. \nPlease try again later"
+                return ["You have exceeded the API call limit for now. \nPlease try again later", '0']
             elif(response["weather"]):
                 print('4')
                 print('description ---------------- ',response["weather"][0]["description"])
@@ -67,8 +67,8 @@ def handle_response(message) -> str:
                 print('temp ---------------- ',response["main"]['temp'])
                 temp = round(9 / 5 * (response["main"]['temp'] - 273.15) + 32, 3)
                 feels_like = round(9 / 5 * (response["main"]['feels_like'] - 273.15) + 32, 3)
-                
-                content = "What would be the best outfit for %s to wear in %s when the weather is %s and the temperature is %.2f Fahrenheit and it feels like %.2f Fahrenheit. Give me the colors of the outfit as well. Create an outfit with these clothing options: %s. Make it sound like an Advertisement" % (user_gender, city, description, temp, feels_like, user_preference)
+
+                content = "What would be the best outfit for %s to wear in %s when the weather is %s and the temperature is %.2f Fahrenheit and it feels like %.2f Fahrenheit. Give me the colors of the outfit as well. Create an outfit with these clothing options: %s.  The outfit should be in line with local customs and must match the local vibe. Make it sound like an Advertisement" % (user_gender, city, description, temp, feels_like, user_preference)
                 print('content ---------------- ',content)
                 try:
                     if message:
@@ -80,17 +80,17 @@ def handle_response(message) -> str:
                         )
                     if(chat.choices[0].message.content):
                         reply = chat.choices[0].message.content
-                        reply += "\n\n"+generate_dalle_image(reply)
-                        return reply
+                        # reply += "\n\n"+generate_dalle_image(reply)
+                        return [reply, '1']
                     else:
-                        return "Sorry something went wrong :(. Please try that again."
+                        return ["Sorry something went wrong :(. Please try that again.", '0']
                 except:
-                    return "Oops! Looks like GPT is not responding. Please try that again later"
+                    return ["Oops! Looks like GPT is not responding. Please try that again later", '0']
             
             else:
-                return "Oops! Something went wrong."
+                return ["Oops! Something went wrong.", '0']
         else:
-            return "Sorry I didn't get that.\n Please resend your request with the proper formatting and gender('men'/'women').\n\n/[city_name] ['men'/'women']\n\nExample query:/London women"
+            return ["Sorry I didn't get that.\n Please resend your request with the proper formatting and gender('men'/'women').\n\n/[city_name] ['men'/'women']\n\nExample query:/London women", '0']
 
 def generate_dalle_image(prompt):
     try:
