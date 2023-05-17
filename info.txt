@@ -1,0 +1,8 @@
+invite link - 
+https://discord.com/api/oauth2/authorize?client_id=1107073320706383943&permissions=534723950656&scope=bot
+
+token - 
+<"here goes your token">
+
+OPEN AI API Key-
+<"here goes your key">
