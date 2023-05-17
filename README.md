@@ -7,5 +7,7 @@ Discord prompts usage:
 /[city_name] ['men'/'women']
 
 Example query:
+
 /London women
+
 /new york male blue blazer with denim pants
