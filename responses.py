@@ -1,32 +1,53 @@
-import random
+import re
 import openai
 import requests
 import constants
 
 openai.api_key = constants.OPENAI_API_KEY
 
-#Setting context
 gpt_messages = [ {"role": "system", "content": "You are a fashion assistant designed to suggest outfits based on weather. You should describe each every part of the outfit individually. The length of the prompt should not exceed 120 words."} ]
 
+def process_string(input_string):
+    city = ""
+    user_preference = ""
+    words = input_string.split()
+    gender = extract_gender(input_string)
+
+    if gender != "":
+        city = ' '.join(words[:next((i for i, word in enumerate(words) if word.lower() == gender.lower()), len(words))]) if gender in words else ''
+        user_preference = ' '.join(words[words.index(gender) + 1:])
+
+    text = " %s = city, %s = gender, %s = user_preference" % (city, gender, user_preference)
+    print(text)
+    return city, gender, user_preference
+
+
+
+def extract_gender(input_string):
+    gender = ""
+
+    # Regular expression pattern for matching gender
+    pattern = r"\b(male|female|man|woman|men|women)\b"
+
+    match = re.search(pattern, input_string, re.IGNORECASE)
+    if match:
+        gender = match.group(0)
+
+    return gender
+
+
 def handle_response(message) -> str:
-    gender = ''
     print(message)
+    
     if (message=='help'):
         return "Hi there! \nI am designed to suggest you outfits based on current weather in a city of your choice. \nYou can invoke me in the following way\n /[city_name] ['men'/'women']\nExample query:/London women"  
     elif(message.startswith('/')):
         print(message)
-        if(message.endswith("women")):
-            message = message[:-6]
-            gender = 'women'
-            
-        elif(message.endswith(" men")):
-            message = message[:-4]
-            gender = 'men'
-        
-        message = message.lower().replace(" ", "%20").replace("/", "")
-        print(message)
-        if(gender):
-            link = "https://api.openweathermap.org/data/2.5/weather?q="+message+"&appid="+constants.WEATHER_API_KEY
+        city, user_gender , user_preference = process_string(message[1:])
+        #city = city.lower().replace(" ", "%20").replace("/", "")
+        print(city,user_gender,user_preference)
+        if(user_gender):
+            link = "https://api.openweathermap.org/data/2.5/weather?q="+city+"&appid="+constants.WEATHER_API_KEY
             api_link = link.replace(" ", "%20")
             print(api_link)
             response = requests.get(api_link).json()
@@ -47,7 +68,7 @@ def handle_response(message) -> str:
                 temp = round(9 / 5 * (response["main"]['temp'] - 273.15) + 32, 3)
                 feels_like = round(9 / 5 * (response["main"]['feels_like'] - 273.15) + 32, 3)
                 
-                content = "What would be the best outfit for "+gender+" to wear in "+message+" when the weather is "+description+" and the temperature is "+str(temp)+" Fahrenheit and it feels like "+str(feels_like)+" Fahrenheit. Give me the colors of the outfit as well."
+                content = "What would be the best outfit for %s to wear in %s when the weather is %s and the temperature is %.2f Fahrenheit and it feels like %.2f Fahrenheit. Give me the colors of the outfit as well. Create an outfit with these clothing options: %s. Make it sound like an Advertisement" % (user_gender, city, description, temp, feels_like, user_preference)
                 print('content ---------------- ',content)
                 try:
                     if message:
