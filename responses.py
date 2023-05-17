@@ -67,7 +67,7 @@ def handle_response(message) -> str:
                 print('temp ---------------- ',response["main"]['temp'])
                 temp = round(9 / 5 * (response["main"]['temp'] - 273.15) + 32, 3)
                 feels_like = round(9 / 5 * (response["main"]['feels_like'] - 273.15) + 32, 3)
-                
+
                 content = "What would be the best outfit for %s to wear in %s when the weather is %s and the temperature is %.2f Fahrenheit and it feels like %.2f Fahrenheit. Give me the colors of the outfit as well. Create an outfit with these clothing options: %s.  The outfit should be in line with local customs and must match the local vibe. Make it sound like an Advertisement" % (user_gender, city, description, temp, feels_like, user_preference)
                 print('content ---------------- ',content)
                 try:
