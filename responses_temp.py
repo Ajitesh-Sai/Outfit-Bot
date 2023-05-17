@@ -5,7 +5,7 @@ import constants
 
 openai.api_key = constants.OPENAI_API_KEY
 
-gpt_messages = [ {"role": "system", "content": "You are a fashion assistant designed to suggest outfits based on weather. You should describe each every part of the outfit individually. The length of the prompt should not exceed 100 words."} ]
+gpt_messages = [ {"role": "system", "content": "You are a fashion assistant designed to suggest outfits based on weather. You should describe each every part of the outfit individually. The outfit should be in line with the local culture. The length of the prompt should not exceed 100 words."} ]
 
 def process_string(input_string):
     city = ""
@@ -27,7 +27,7 @@ def extract_gender(input_string):
     gender = ""
 
     # Regular expression pattern for matching gender
-    pattern = r"\b(male|female|man|woman|men|women)\b"
+    pattern = r"\b(male|female|man|woman|men|women|unisex)\b"
 
     match = re.search(pattern, input_string, re.IGNORECASE)
     if match:
@@ -38,9 +38,9 @@ def extract_gender(input_string):
 
 def handle_response(message) -> str:
     print(message)
-    reply=[]
+    
     if (message=='help'):
-        return ["Hi there! \nI am designed to suggest you outfits based on current weather in a city of your choice. \nYou can invoke me in the following way\n /[city_name] ['men'/'women']\nExample query:/London women", 0]  
+        return "Hi there! \nI am designed to suggest you outfits based on current weather in a city of your choice. \nYou can invoke me in the following way\n /[city_name] ['men'/'women']\nExamples:/London women\n/San Jose men black and yellow"  
     elif(message.startswith('/')):
         print(message)
         city, user_gender , user_preference = process_string(message[1:])
@@ -55,11 +55,11 @@ def handle_response(message) -> str:
             if(response['cod']=='404'):
                 print('1')
                 print(response['cod'])
-                return ["City not found. \nPlease try that again with a valid city name", '0']            
+                return "City not found. \nPlease try that again with a valid city name"            
             elif(response['cod']=='429'):
                 print('2')
                 print(response['cod'])
-                return ["You have exceeded the API call limit for now. \nPlease try again later", '0']
+                return "You have exceeded the API call limit for now. \nPlease try again later"
             elif(response["weather"]):
                 print('4')
                 print('description ---------------- ',response["weather"][0]["description"])
@@ -68,8 +68,8 @@ def handle_response(message) -> str:
                 temp = round(9 / 5 * (response["main"]['temp'] - 273.15) + 32, 3)
                 feels_like = round(9 / 5 * (response["main"]['feels_like'] - 273.15) + 32, 3)
                 
-                content = "What would be the best outfit for %s to wear in %s when the weather is %s and the temperature is %.2f Fahrenheit and it feels like %.2f Fahrenheit. Give me the colors of the outfit as well. Create an outfit with these clothing options: %s.  The outfit should be in line with local customs and must match the local vibe. Make it sound like an Advertisement" % (user_gender, city, description, temp, feels_like, user_preference)
-                print('content ---------------- ',content)
+                content = "What would be the best outfit for %s to wear in %s when the weather is %s and the temperature is %.2f Fahrenheit and it feels like %.2f Fahrenheit. Give me the colors of the outfit as well. Create an outfit that matches this description: %s. Make it sound like you are very excited about the outfit" % (user_gender, city, description, temp, feels_like, user_preference)
+                print('content ---------------- \n',content)
                 try:
                     if message:
                         gpt_messages.append(
@@ -80,17 +80,17 @@ def handle_response(message) -> str:
                         )
                     if(chat.choices[0].message.content):
                         reply = chat.choices[0].message.content
-                        # reply += "\n\n"+generate_dalle_image(reply)
-                        return [reply, '1']
+                        reply += "\n\n"+generate_dalle_image(reply)
+                        return reply
                     else:
-                        return ["Sorry something went wrong :(. Please try that again.", '0']
+                        return "Sorry something went wrong :(. Please try that again."
                 except:
-                    return ["Oops! Looks like GPT is not responding. Please try that again later", '0']
+                    return "Oops! Looks like GPT is not responding. Please try that again later"
             
             else:
-                return ["Oops! Something went wrong.", '0']
+                return "Oops! Something went wrong."
         else:
-            return ["Sorry I didn't get that.\n Please resend your request with the proper formatting and gender('men'/'women').\n\n/[city_name] ['men'/'women']\n\nExample query:/London women", '0']
+            return "Sorry I didn't get that.\n Please resend your request with the proper formatting and gender('men'/'women').\n\n/[city_name] ['men'/'women']\n\nExample query:/London women"
 
 def generate_dalle_image(prompt):
     try:
@@ -101,6 +101,6 @@ def generate_dalle_image(prompt):
                     size="512x512",
                 )
             return response["data"][0]["url"]
-    # except:
-        # return "There was an issue in generating the image. Please try again later"
+    except:
+        return "There was an issue in generating the image. Please try again later"
     except Exception as e: print(e)
