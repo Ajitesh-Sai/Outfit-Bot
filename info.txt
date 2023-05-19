@@ -2,7 +2,7 @@ invite link -
 https://discord.com/api/oauth2/authorize?client_id=1107073320706383943&permissions=534723950656&scope=bot
 
 token - 
-<"here goes your token">
+MTEwNzA3MzMyMDcwNjM4Mzk0Mw.GuNOr2.U65Fe3w9xVwMrEIlxDzrfEkhEXL1kLE_PbceiU
 
 OPEN AI API Key-
-<"here goes your key">
+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

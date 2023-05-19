@@ -5,7 +5,7 @@ import constants
 
 openai.api_key = constants.OPENAI_API_KEY
 
-gpt_messages = [ {"role": "system", "content": "You are a fashion assistant designed to suggest outfits based on weather. You should describe each every part of the outfit individually. The length of the prompt should not exceed 100 words."} ]
+gpt_messages = [ {"role": "system", "content": "You are a fashion assistant designed to suggest outfits based on weather. You should describe each every part of the outfit individually. The length of the prompt should not exceed 100 words. Make it a DALL-E prompt for producing a photorealistic image focusing on the outfit"} ]
 
 def process_string(input_string):
     city = ""
